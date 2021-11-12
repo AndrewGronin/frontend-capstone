@@ -1,24 +1,20 @@
 import React from 'react';
 import './App.css';
-import {gql, useQuery} from "@apollo/client";
+import {Router, RouteComponentProps} from "@reach/router"
+import {LoginForm} from "./Components/LoginForm/LoginForm";
 
-const EXCHANGE_RATES = gql`
-  query GetExchangeRates {users{
-    firstName
-}}
-`;
+let Home = (props : RouteComponentProps) => <div>Home</div>
 
 function App() {
-    const {loading, error, data} = useQuery(EXCHANGE_RATES);
-    console.log(data)
+    //const {loading, error, data} = useQuery(EXCHANGE_RATES);
+    //console.log(data)
+    // @ts-ignore
     return (
         <>
-            <>dadsa</>
-            <form
-            >
-                <button onClick={()=>
-                console.log("sfasfasf")} type="button"> cockc </button>
-            </form>
+            <Router>
+                <Home path="/" />
+                <LoginForm path="authorization" />
+            </Router>
         </>
     );
 }

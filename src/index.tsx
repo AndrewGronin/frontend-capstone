@@ -5,6 +5,9 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {ApolloClient, ApolloProvider, InMemoryCache} from "@apollo/client";
 
+import "rsuite/dist/rsuite.min.css";
+
+
 const client = new ApolloClient({
     uri: 'https://localhost:5001/graphql/',
     cache: new InMemoryCache(),
