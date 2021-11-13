@@ -3,6 +3,8 @@ import React, {FC, useMemo, useState} from "react";
 import {Button, ButtonToolbar, Form, Nav} from "rsuite";
 import {gql, useMutation} from "@apollo/client";
 import { Formik } from 'formik';
+import {AuthDataType} from "../../App";
+import {navigate} from "../../Navigation/hrefFactory";
 
 
 type mode = "login"|"register"
@@ -37,11 +39,15 @@ mutation RegisterMutation($email: String!, $password: String!, $firstName:String
 }
 `;
 
-export const LoginForm: FC<RouteComponentProps> = ({ path }) => {
+type LoginFormProps = {setAuthData : React.Dispatch<React.SetStateAction<AuthDataType>>} & RouteComponentProps
+
+export const LoginForm: FC<LoginFormProps> = ({ setAuthData }) => {
     const [mode, setMode] = useState<mode>("login")
 
     const [loginFunction, { data:loginData, loading:loginLoading, error: loginError }] = useMutation(LOGIN_MUTATION);
     const [registerFunction, { data:registerData, loading:registerLoading, error: registerError }] = useMutation(REGISTER_MUTATION);
+
+
 
 
     return(
@@ -67,8 +73,19 @@ export const LoginForm: FC<RouteComponentProps> = ({ path }) => {
                               /* and other goodies */
                           }) => (
                                 <Form onSubmit={
-                                    (checkStatus, event) =>
-                                        loginFunction({variables:{email: values.email, password: values.password}})}>
+                                    (checkStatus, event) => {
+                                        var promise = loginFunction({variables: {email: values.email, password: values.password}})
+                                        promise.then(value => {
+                                            console.log("Val",value)
+                                                localStorage.setItem("jwtToken", value?.data?.authenticate.jwtToken)
+                                            localStorage.setItem("refreshToken", value?.data?.authenticate.refreshToken)
+
+                                                navigate.toHome();
+                                            }
+
+                                        )}
+                                    }
+                                >
                                     <Form.Group controlId="email">
                                         <Form.ControlLabel>Email</Form.ControlLabel>
                                         <Form.Control

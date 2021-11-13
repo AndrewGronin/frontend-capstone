@@ -1,22 +1,24 @@
-import React from 'react';
+import React, {createContext, useState} from 'react';
 import './App.css';
 import {Router, RouteComponentProps} from "@reach/router"
 import {LoginForm} from "./Components/LoginForm/LoginForm";
+import {HomeDemo} from "./Components/HomeDemo/HomeDemo";
 
-let Home = (props : RouteComponentProps) => <div>Home</div>
+export const AuthContext = createContext<AuthDataType>({token:null, userId: null})
+
+export type AuthDataType = {token: string|null; userId: number|null};
 
 function App() {
-    //const {loading, error, data} = useQuery(EXCHANGE_RATES);
-    //console.log(data)
-    // @ts-ignore
+    const [authData, setAuthData] = useState<AuthDataType>({token:null, userId: null})
+    //console.log("app",authData)
+
     return (
-        <>
-            <Router>
-                <Home path="/" />
-                <LoginForm path="authorization" />
+        <Router>
+                <HomeDemo path="/" authData={authData}/>
+                <LoginForm path="authorization" setAuthData={setAuthData}/>
             </Router>
-        </>
     );
 }
+
 
 export default App;
