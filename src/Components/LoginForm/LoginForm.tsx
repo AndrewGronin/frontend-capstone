@@ -4,7 +4,7 @@ import { Button, ButtonToolbar, Form, Nav } from "rsuite";
 import { gql, useMutation } from "@apollo/client";
 import { Formik } from "formik";
 import { AuthDataType } from "../../App";
-import { navigate } from "../../Navigation/hrefFactory";
+import {navigate} from "../../Navigation/navigate";
 
 type mode = "login" | "register";
 

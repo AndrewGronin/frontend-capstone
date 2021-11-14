@@ -1,21 +1,20 @@
-import { FC, useContext, useMemo } from "react";
+import { FC, useMemo } from "react";
 import { RouteComponentProps } from "@reach/router";
-import { gql, useQuery } from "@apollo/client";
-import { AuthContext, AuthDataType } from "../../App";
+import {useMutation, useQuery} from "@apollo/client";
+import { AuthDataType } from "../../App";
+import {navigate} from "../../Navigation/navigate";
+import {GET_USER_QUERY} from "../../Api/GetUserQuery";
+import {Button} from "rsuite";
+import {REVOKE_TOKEN_MUTATION} from "../../Api/RevokeTokenMutation";
 
-const GET_USER_QUERY = gql`
-  query UserQuery($userId: Int!) {
-    users(ids: [$userId]) {
-      firstName
-      lastName
-      passwordHash
-      id
-      email
-    }
+
+
+function parseJwt(token: string|null) {
+  if(!token){
+    navigate.toAuth().then(()=>window.location.reload());
+    return;
   }
-`;
 
-function parseJwt(token: string) {
   var base64Url = token.split(".")[1];
   var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
   var jsonPayload = decodeURIComponent(
@@ -30,11 +29,9 @@ function parseJwt(token: string) {
   return JSON.parse(jsonPayload);
 }
 
-export const HomeDemo: FC<RouteComponentProps & { authData: AuthDataType }> = ({
-  path,
-}) => {
+export const HomeDemo: FC<RouteComponentProps & { authData: AuthDataType }> = () => {
   var userId = useMemo(
-    () => parseJwt(localStorage.getItem("jwtToken") ?? "").unique_name,
+    () => parseJwt(localStorage.getItem("jwtToken"))?.unique_name,
     []
   );
 
@@ -42,8 +39,14 @@ export const HomeDemo: FC<RouteComponentProps & { authData: AuthDataType }> = ({
     variables: { userId: parseInt(userId) },
   });
 
+  var [revokeToken] = useMutation(REVOKE_TOKEN_MUTATION, {variables:{refreshToken: localStorage.getItem("refreshToken") ?? ""}})
+
   const user = useMemo(() => data?.users?.[0], [data]);
-  console.log(data);
+
+  if(!user){
+    console.error("Somehow user wasn't found")
+    return (<div></div>);
+  }
 
   return (
     <>
@@ -55,6 +58,19 @@ export const HomeDemo: FC<RouteComponentProps & { authData: AuthDataType }> = ({
           <div>User first name: {user.firstName}</div>
           <div>User last name: {userId.lastName}</div>
           <div>User jwtToken {localStorage.getItem("jwtToken") ?? "null"}</div>
+          <Button
+              onClick={() =>{
+                revokeToken()
+                    .then(()=>{
+                      localStorage.removeItem("jwtToken");
+                      localStorage.removeItem("refreshToken");
+                      navigate.toAuth();
+                    });
+
+              }}
+          >
+            Logout
+          </Button>
         </>
       ) : (
         <>Error</>
