@@ -1,17 +1,14 @@
 import { FC, useMemo } from "react";
 import { RouteComponentProps } from "@reach/router";
-import {useMutation, useQuery} from "@apollo/client";
-import { AuthDataType } from "../../App";
-import {navigate} from "../../Navigation/navigate";
-import {GET_USER_QUERY} from "../../Api/GetUserQuery";
-import {Button} from "rsuite";
-import {REVOKE_TOKEN_MUTATION} from "../../Api/RevokeTokenMutation";
+import { useMutation, useQuery } from "@apollo/client";
+import { navigate } from "../../Navigation/navigate";
+import { GET_USER_QUERY } from "../../Api/GetUserQuery";
+import { Button } from "rsuite";
+import { REVOKE_TOKEN_MUTATION } from "../../Api/RevokeTokenMutation";
 
-
-
-function parseJwt(token: string|null) {
-  if(!token){
-    navigate.toAuth().then(()=>window.location.reload());
+function parseJwt(token: string | null) {
+  if (!token) {
+    navigate.toAuth().then(() => window.location.reload());
     return;
   }
 
@@ -29,7 +26,7 @@ function parseJwt(token: string|null) {
   return JSON.parse(jsonPayload);
 }
 
-export const HomeDemo: FC<RouteComponentProps & { authData: AuthDataType }> = () => {
+export const HomeDemo: FC<RouteComponentProps> = () => {
   var userId = useMemo(
     () => parseJwt(localStorage.getItem("jwtToken"))?.unique_name,
     []
@@ -39,13 +36,15 @@ export const HomeDemo: FC<RouteComponentProps & { authData: AuthDataType }> = ()
     variables: { userId: parseInt(userId) },
   });
 
-  var [revokeToken] = useMutation(REVOKE_TOKEN_MUTATION, {variables:{refreshToken: localStorage.getItem("refreshToken") ?? ""}})
+  var [revokeToken] = useMutation(REVOKE_TOKEN_MUTATION, {
+    variables: { refreshToken: localStorage.getItem("refreshToken") ?? "" },
+  });
 
   const user = useMemo(() => data?.users?.[0], [data]);
 
-  if(!user){
-    console.error("Somehow user wasn't found")
-    return (<div></div>);
+  if (!user) {
+    console.error("Somehow user wasn't found");
+    return <div></div>;
   }
 
   return (
@@ -59,15 +58,13 @@ export const HomeDemo: FC<RouteComponentProps & { authData: AuthDataType }> = ()
           <div>User last name: {userId.lastName}</div>
           <div>User jwtToken {localStorage.getItem("jwtToken") ?? "null"}</div>
           <Button
-              onClick={() =>{
-                revokeToken()
-                    .then(()=>{
-                      localStorage.removeItem("jwtToken");
-                      localStorage.removeItem("refreshToken");
-                      navigate.toAuth();
-                    });
-
-              }}
+            onClick={() => {
+              revokeToken().then(() => {
+                localStorage.removeItem("jwtToken");
+                localStorage.removeItem("refreshToken");
+                navigate.toAuth();
+              });
+            }}
           >
             Logout
           </Button>

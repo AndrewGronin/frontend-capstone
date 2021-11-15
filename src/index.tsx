@@ -3,14 +3,10 @@ import { render } from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import {
-  ApolloProvider,
-
-} from "@apollo/client";
+import { ApolloProvider } from "@apollo/client";
 
 import "rsuite/dist/rsuite.min.css";
-import {apolloClient} from "./apolloClient";
-
+import { apolloClient } from "./apolloClient";
 
 render(
   <ApolloProvider client={apolloClient}>
