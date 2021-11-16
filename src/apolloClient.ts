@@ -9,6 +9,7 @@ import { setContext } from "@apollo/client/link/context";
 import { onError } from "apollo-link-error";
 import { REFRESH_TOKEN_MUTATION } from "./Api/RefreshTokenMutation";
 import { navigate } from "./Navigation/navigate";
+import {RevokeOperationName} from "./Api/RevokeTokenMutation";
 
 let client: ApolloClient<NormalizedCacheObject>;
 
@@ -66,6 +67,10 @@ const errorLink = onError(
                     authorization: `Bearer ${tokens?.jwtToken}`,
                   },
                 });
+
+                if(operation.operationName === RevokeOperationName){
+                    operation.variables.refreshToken = localStorage.getItem("refreshToken")
+                }
 
                 return forward(operation);
               });

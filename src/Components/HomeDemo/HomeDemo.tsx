@@ -49,7 +49,7 @@ export const HomeDemo: FC<RouteComponentProps> = () => {
 
   return (
     <>
-      {!loading && !error ? (
+      {!loading && !error && user ? (
         <>
           <div>You've logged in as:</div>
           <div>UserId: {userId}</div>
@@ -57,13 +57,16 @@ export const HomeDemo: FC<RouteComponentProps> = () => {
           <div>User first name: {user.firstName}</div>
           <div>User last name: {userId.lastName}</div>
           <div>User jwtToken {localStorage.getItem("jwtToken") ?? "null"}</div>
+          <div>User refreshToken {localStorage.getItem("refreshToken") ?? "null"}</div>
+
           <Button
             onClick={() => {
               revokeToken().then(() => {
                 localStorage.removeItem("jwtToken");
                 localStorage.removeItem("refreshToken");
                 navigate.toAuth();
-              });
+              })
+                  .catch(()=>navigate.toAuth());
             }}
           >
             Logout
